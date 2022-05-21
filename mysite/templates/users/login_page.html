@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Login page{% endblock title %}
+
+{% block form %}
+<div id="login-form-wrap">
+  <h2>Login</h2>
+  <form action="" method="post" id="login-form">
+    {% csrf_token %}
+    <p>
+    <input type="email" id="email" name="email" placeholder="Email Address" required><i class="validation"><span></span><span></span></i>
+    </p>
+    <p>
+    <input type="password" id="password" name="password" placeholder="Password" required><i class="validation"><span></span><span></span></i>
+    </p>
+    <p>
+    <input type="submit" id="login" value="Login">
+    </p>
+  </form>
+  <div id="create-account-wrap">
+    <p>Not a member? <a href={% url '' %}>Create Account</a><p>
+  </div><!--create-account-wrap-->
+</div><!--login-form-wrap-->
+{% endblock form %}

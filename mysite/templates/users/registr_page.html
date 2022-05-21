@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration page{% endblock title %}
+
+{% block form %}
+<div id="login-form-wrap">
+  <h2>Registration</h2>
+  <form id="login-form" action="." method="post">
+    {{ user_form }}
+
+    {% csrf_token %}  
+    <p>
+    <input type="submit" id="registr" value="Register">
+    </p>
+  </form>
+  <div id="create-account-wrap">
+    <p>Already registered? <a href="/login">Log in!</a><p>
+  </div><!--create-account-wrap-->
+</div><!--login-form-wrap-->
+{% endblock form %}
