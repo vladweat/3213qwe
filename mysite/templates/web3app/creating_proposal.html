@@ -8,6 +8,8 @@
   <a href="{% url 'logout' %}">Log Out</a></p>
   <p>Private key: {{ user.private_key }}</p>
   <p>Eth address: {{ user.eth_address }}</p>
+  <p>Balance: {{ balance }} ETH</p>
+  {% comment %} <p>Tx hash: {{ tx_hash }} ETH</p> {% endcomment %}
   
 {% else %}
   <p>You are not logged in</p>
@@ -18,6 +20,6 @@
 {% block form %}
 <form action="{% url 'check_web3' %}" method="post">
   {% csrf_token %}
-   <button type="submit">Check web3 connection</button>
+   <button type="submit">Check nonce</button>
 </form>
 {% endblock %}
