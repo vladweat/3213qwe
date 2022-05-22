@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}View proposal{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+  <p>Условный дэшборд</p>
+  <p>Hi {{ user.email }}!
+  <a href="{% url 'logout' %}">Log Out</a></p>
+  <p>User id: {{ user.id }}</p>
+  <p>Private key: {{ user.private_key }}</p>
+  <p>Eth address: {{ user.eth_address }}</p>
+  <p>Proposal long name: {{ proposal.long_name }}</p>
+  <p>Proposal short name: {{ proposal.short_name }}</p>
+  <p>Proposal creator id: {{ proposal.creator.id }}</p>
+  <p>Proposal creator email: {{ proposal.creator.email }}</p>
+  <p>Proposal status: {{ proposal.status }}</p>
+  
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}

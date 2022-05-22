@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 
+
 from .forms import ProposalCreationForm
 from .models import Proposal
 
@@ -21,42 +22,51 @@ config = dotenv_values(".env")
 bank_address = config.get("BANK_ADDRESS")
 bank_private_key = config.get("BANK_PRIVATE_KEY")
 
+
 @login_required
-def view_proposal(request):
-    return HttpResponse("view_proposal")
+def view_proposal(request, proposal_id):
+    
+    proposal = Proposal.objects.get(id=proposal_id)
+    
+    id = proposal.id
+    name = proposal.long_name
+    
+    
+    output = f"Proposal id {id}, name {name}"
+    # return HttpResponse(output)
+    return render(
+        request,
+        "web3app/view_proposal.html",
+        {"proposal": proposal}
+    )
+
 
 @login_required
 def creating_proposal(request):
     balance = get_balance(request)
-    data = Proposal.objects.all()
-    
+    data = Proposal.objects.all().filter(creator=request.user.id)
     if request.method == "POST":
-        
+
         form = ProposalCreationForm(request.POST)
         if form.is_valid():
             print("form is valid")
-            
+
             cd = form.cleaned_data
-            
+
             proposal = Proposal()
             proposal.long_name = cd["long_name"]
             proposal.short_name = cd["short_name"]
             proposal.description = cd["description"]
-            
+
             proposal.creator = request.user
             proposal.set_status(0)
-            
-            print(cd)
-            
+
             proposal.save()
+
+            proposal_id = proposal.id
             
-            data = proposal.long_name
-            
-            return render(
-                request,
-                "web3app/creating_proposal.html",
-                {"balance": balance, "data": data, "form": form},
-            )
+            return redirect('view_proposal', proposal_id=proposal_id)
+            # return view_proposal(request, proposal_id)
         else:
             print("form is not valid")
             return render(
@@ -66,7 +76,7 @@ def creating_proposal(request):
             )
     else:
         form = ProposalCreationForm()
-        
+
     return render(
         request,
         "web3app/creating_proposal.html",
