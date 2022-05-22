@@ -6,9 +6,11 @@
 {% if user.is_authenticated %}
   <p>Hi {{ user.email }}!
   <a href="{% url 'logout' %}">Log Out</a></p>
+  <p>User id: {{ user.id }}</p>
   <p>Private key: {{ user.private_key }}</p>
   <p>Eth address: {{ user.eth_address }}</p>
   <p>Balance: {{ balance }} ETH</p>
+  <p>Data: {{ data }}</p>
   {% comment %} <p>Tx hash: {{ tx_hash }} ETH</p> {% endcomment %}
   
 {% else %}
@@ -18,8 +20,24 @@
 {% endblock %}
 
 {% block form %}
-<form action="{% url 'check_web3' %}" method="post">
+<form action="{% url 'creating_proposal' %}" method="POST">
   {% csrf_token %}
-   <button type="submit">Check nonce</button>
+   <button type="submit">Create test proposal</button>
+   <hr>
 </form>
+
 {% endblock %}
+
+
+{% block spec_form %}
+
+<form action="{% url 'creating_proposal' %}" method='POST'>
+  {% csrf_token %}
+
+  {{ form.as_p }}
+
+  <input type="submit" value="Submit">
+</form>
+
+{% endblock spec_form %}
+

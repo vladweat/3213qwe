@@ -30,12 +30,14 @@ urlpatterns = [
     ###
     # re_path(r'^accounts/register/$', users_views.SignUpView.as_view(), name='signup'),
     # re_path("^$", users_views.HomePageView.as_view(), name="home"),
-    path('check_web3/', web3app_views.check_web3, name='check_web3'),
+    # path('cr_proposal/', web3app_views.cr_proposal, name='cr_proposal'),
+    # path("forma/", web3app_views.forma, name='forma'),
     path("accounts/", include("django.contrib.auth.urls")),
     path("registr/", users_views.registr, name="registr"),
     path("login/", users_views.login, name="login"),
     path("logout/", users_views.logout, name="logout"),
     path("creating_proposal/", web3app_views.creating_proposal, name="creating_proposal"),
+    path("view_proposal/", web3app_views.view_proposal, name="view_proposal"),
     path("", users_views.index),
     path("admin/", admin.site.urls),
 ]

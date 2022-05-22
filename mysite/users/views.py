@@ -51,22 +51,6 @@ def login(request):
         form = LoginForm()
     return render(request, "users/login_page.html", {"form": form})
 
-
-@login_required
-def check_web3(request):
-    if request.method == "POST":
-        web3 = Web3(
-            HTTPProvider(
-                "https://rinkeby.infura.io/v3/32a867e993e44d8bbd973382f147e060"
-            )
-        )
-        res = web3.isConnected()
-        print(res)
-        redirect("creating_proposal")
-    else:
-        return HttpResponseRedirect("creating_proposal")
-
-
 # logout func that redirect on /login
 @login_required
 def logout(request):

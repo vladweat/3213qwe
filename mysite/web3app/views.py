@@ -9,20 +9,72 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 
+from .forms import ProposalCreationForm
+from .models import Proposal
+
 from web3 import Web3, HTTPProvider, eth, Account
+from dotenv import dotenv_values
 
+config = dotenv_values(".env")
 
-bank_address = "0xB5dea2661dfa4b8f0aaE8Bc1F583369D927c3b06"
-bank_private_key = "0xcad32d1bbf83420e30b80cbe1f944dfe510db0af34ab42f0341b67f5f7da530a"
+# bank address
+bank_address = config.get("BANK_ADDRESS")
+bank_private_key = config.get("BANK_PRIVATE_KEY")
 
+@login_required
+def view_proposal(request):
+    return HttpResponse("view_proposal")
 
+@login_required
 def creating_proposal(request):
-    balance = connect_to_web3(request)
-    # tx_hash = send_from_bank_to_account(request)
-    return render(request, "web3app/creating_proposal.html", {"balance": balance})
+    balance = get_balance(request)
+    data = Proposal.objects.all()
+    
+    if request.method == "POST":
+        
+        form = ProposalCreationForm(request.POST)
+        if form.is_valid():
+            print("form is valid")
+            
+            cd = form.cleaned_data
+            
+            proposal = Proposal()
+            proposal.long_name = cd["long_name"]
+            proposal.short_name = cd["short_name"]
+            proposal.description = cd["description"]
+            
+            proposal.creator = request.user
+            proposal.set_status(0)
+            
+            print(cd)
+            
+            proposal.save()
+            
+            data = proposal.long_name
+            
+            return render(
+                request,
+                "web3app/creating_proposal.html",
+                {"balance": balance, "data": data, "form": form},
+            )
+        else:
+            print("form is not valid")
+            return render(
+                request,
+                "web3app/creating_proposal.html",
+                {"balance": balance, "data": data, "form": form},
+            )
+    else:
+        form = ProposalCreationForm()
+        
+    return render(
+        request,
+        "web3app/creating_proposal.html",
+        {"balance": balance, "data": data, "form": form},
+    )
 
 
-def connect_to_web3(request):
+def get_balance(request):
     web3 = Web3(
         HTTPProvider("https://rinkeby.infura.io/v3/32a867e993e44d8bbd973382f147e060")
     )
@@ -33,28 +85,32 @@ def connect_to_web3(request):
     # result = f"Balance of {request.user.eth_address} - {balance}"
     return balance
 
-def send_from_bank_to_account(request):
-    web3 = Web3(
-        HTTPProvider("https://rinkeby.infura.io/v3/32a867e993e44d8bbd973382f147e060")
-    )
-    nonce = web3.eth.getTransactionCount(bank_address)
-    
-    tx = {
-        "nonce": nonce,
-        "to": request.user.eth_address,
-        "value": web3.toWei(0.005, "ether"),
-        "gas": 2000000,
-        "gasPrice": web3.toWei('50', 'gwei')
-    }
-    
-    signed_tx = web3.eth.account.sign_transaction(tx, bank_private_key)
-    tx_hash = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
-    return web3.toHex(tx_hash)
-    
+
+# @login_required
+# def forma(request):
+#     data = "rundom hueta"
+#     return creating_proposal(request, input_data=data)
+
+# @login_required
+# def cr_proposal(request):
+#     if request.method == "POST":
+#         form = ProposalCreationForm(request.POST)
+#         data = {}
+
+#         if form.is_valid():
+
+#             return creating_proposal(request, data=data, form=form)
+#     else:
+#         return HttpResponseRedirect("creating_proposal")
+
+
+####################################################################################
+
+# неактуально <form action="{% url 'check_web3' %}" method="post">
 @login_required
 def check_web3(request):
     if request.method == "POST":
         # print(send_from_bank_to_account(request))
-        return HttpResponsePermanentRedirect("/creating_proposal")
+        return creating_proposal(request)
     else:
         return HttpResponseRedirect("creating_proposal")
