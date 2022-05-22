@@ -1,6 +1,13 @@
-{% extends 'base.html' %}
-
-{% block title %}Registration page{% endblock title %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Login page{% endblock title %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="{% static 'css/users/style.css' %}">
+</head>
+<body>
 
 {% block form %}
 <div id="login-form-wrap">
@@ -14,7 +21,12 @@
     </p>
   </form>
   <div id="create-account-wrap">
-    <p>Already registered? <a href="/login">Log in!</a><p>
+    <p>Already registered? <a href={% url 'login' %}>Log in!</a><p>
   </div><!--create-account-wrap-->
 </div><!--login-form-wrap-->
 {% endblock form %}
+
+{% block content %}{% endblock content %}
+
+</body>
+</html>

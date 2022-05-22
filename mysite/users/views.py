@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
@@ -9,8 +9,12 @@ from django.contrib.auth import login as auth_login
 from eth_account import Account
 import secrets
 
+from django.contrib.auth import logout as django_logout
+from django.contrib.auth.decorators import login_required
 
 from .forms import CustomUserCreationForm, LoginForm
+
+from web3 import Web3, HTTPProvider
 
 # Create your views here.
 def index(request):
@@ -37,6 +41,27 @@ def login(request):
     else:
         form = LoginForm()
     return render(request, "users/login_page.html", {"form": form})
+
+
+@login_required
+def check_web3(request):
+    if request.method == "POST":
+        web3 = Web3(
+            HTTPProvider(
+                "https://rinkeby.infura.io/v3/32a867e993e44d8bbd973382f147e060"
+            )
+        )
+        res = web3.isConnected()
+        print(res)
+        redirect("creating_proposal")
+    else:
+        return HttpResponseRedirect("creating_proposal")
+
+
+@login_required
+def logout(request):
+    django_logout(request)
+    return HttpResponseRedirect("/login")
 
 
 def registr(request):

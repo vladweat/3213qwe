@@ -4,10 +4,20 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-  Hi {{ user.username }}!
-  <p><a href="{% url 'logout:logout' %}">Log Out</a></p>
+  <p>Hi {{ user.email }}!
+  <a href="{% url 'logout' %}">Log Out</a></p>
+  <p>Private key: {{ user.private_key }}</p>
+  <p>Eth address: {{ user.eth_address }}</p>
+  
 {% else %}
   <p>You are not logged in</p>
   <a href="{% url 'login' %}">Log In</a>
 {% endif %}
+{% endblock %}
+
+{% block form %}
+<form action="{% url 'check_web3' %}" method="post">
+  {% csrf_token %}
+   <button type="submit">Check web3 connection</button>
+</form>
 {% endblock %}
