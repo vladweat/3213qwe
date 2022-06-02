@@ -15,7 +15,7 @@ class Proposal(models.Model):
     creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     status = models.CharField(max_length=20)
     num_of_options = models.IntegerField(default=0)
-    options = models.IntegerField(default=0)
+    options = models.CharField(max_length=500)
     voters = models.IntegerField(default=0)
     end_date = models.DateTimeField(default=timezone.now)
     
@@ -34,6 +34,7 @@ class Proposal(models.Model):
             self.status = "progressed"
         if status == 2:
             self.status = "finished"
+            self.end_date = timezone.now
     
     def get_status(self):
         return self.status

@@ -1,0 +1,6 @@
+dotenv: .env
+wallets:
+  ## Wallet - Programming (MetaMask)
+  ## pas this in simple_storage_deploy()
+  # account = accounts.add(config["wallets"]["from_key"])
+  from_key: ${PRIVATE_KEY}

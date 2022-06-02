@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # Local
     "users",
     "web3app",
+    "brownie",
 ]
 
 

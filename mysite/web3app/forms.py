@@ -7,6 +7,7 @@ class ProposalCreationForm(forms.Form):
     long_name = forms.CharField(label='Long name', max_length=200)
     short_name = forms.CharField(label='Short name', max_length=100)
     description = forms.CharField(label='Description', max_length=500)
+    options = forms.CharField(label='Options', max_length=500)
     
     
     # class Meta:
