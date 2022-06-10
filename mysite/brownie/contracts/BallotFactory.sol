@@ -6,14 +6,20 @@ import "./Ballot.sol";
 contract BallotFactory is Ballot {
     Ballot[] public ballotArray;
 
-    function createBallotContract() public {
-        Ballot ballot = new Ballot();
-        ballotArray.push(ballot);
+    // function createBallotContract() public {
+    //     Ballot ballot = new Ballot();
+    //     ballotArray.push(ballot);
+    // }
+
+    function bfGetBallotsLenght() public view returns (uint256) {
+        return ballotArray.length;
     }
 
     function bfCreateBallot(uint256 _ballotIndex, string[] memory proposalNames)
         public
     {
+        Ballot ballot = new Ballot();
+        ballotArray.push(ballot);
         Ballot(address(ballotArray[_ballotIndex])).createBallot(proposalNames);
     }
 
@@ -65,11 +71,10 @@ contract BallotFactory is Ballot {
         return Ballot(address(ballotArray[_ballotIndex])).getnumOfProposals();
     }
 
-    function bfGetProposalStructure(uint256 _ballotIndex, uint256 _proposalId)
-        public
-        view
-        returns (Proposal memory)
-    {
+    function bfGetProposalStructureiOfBallot(
+        uint256 _ballotIndex,
+        uint256 _proposalId
+    ) public view returns (Proposal memory) {
         return
             Ballot(address(ballotArray[_ballotIndex])).getProposalStructure(
                 _proposalId

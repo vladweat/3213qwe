@@ -1,12 +1,14 @@
 from statistics import mode
 from django.db import models
 from django.utils import timezone
+
 # Create your models here.
 
 from users.models import CustomUser
 
+
 class Proposal(models.Model):
-    
+
     # fields
     start_date = models.DateTimeField(default=timezone.now)
     long_name = models.CharField(max_length=200)
@@ -18,15 +20,15 @@ class Proposal(models.Model):
     options = models.CharField(max_length=500)
     voters = models.IntegerField(default=0)
     end_date = models.DateTimeField(default=timezone.now)
-    
+
     # metadata
     class Meta:
         pass
-    
+
     # methods
     def get_start_date(self):
         return self.start_date
-     
+
     def set_status(self, status):
         if status == 0:
             self.status = "created"
@@ -35,15 +37,21 @@ class Proposal(models.Model):
         if status == 2:
             self.status = "finished"
             self.end_date = timezone.now
-    
+
     def get_status(self):
         return self.status
-    
+
     def set_end_date(self):
         self.end_date = timezone.now
-    
+
     def get_end_date(self):
         return self.end_date
-    
+
+
 class Option(models.Model):
     name = models.ForeignKey(Proposal, on_delete=models.CASCADE)
+
+
+class Web3Deploy(models.Model):
+    creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE)
