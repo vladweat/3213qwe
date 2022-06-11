@@ -31,61 +31,6 @@ bank_private_key = config.get("BANK_PRIVATE_KEY")
 infura_url = config.get("INFURA_URL")
 contract_address = config.get("CONTRACT_ADDRESS")
 
-# old version
-# def connect_to_smart_contract(request):
-#     # import deploying contract json file from brownie
-#     with open(
-#         os.path.join(settings.BASE_DIR, "brownie/build/contracts/SimpleStorage.json")
-#     ) as jsonFile:
-#         jsonObject = json.load(jsonFile)
-#         jsonFile.close()
-#     # take abi/bytecode from file
-#     abi = jsonObject["abi"]
-#     bytecode = jsonObject["bytecode"]
-#     # connect to web3
-#     web3 = Web3(Web3.HTTPProvider(infura_url))
-#     chain_id = 1337
-#     #
-#     SimpleStorage = web3.eth.contract(abi=abi, bytecode=bytecode)
-#     nonce = web3.eth.getTransactionCount(request.user.eth_address)
-#     # creating contract var, that we can interact with
-#     simple_storage = web3.eth.contract(address=contract_address, abi=abi)
-#     return simple_storage
-
-
-# def connect_to_smart_contract(request):
-#     with open(
-#         os.path.join(settings.BASE_DIR, "brownie/build/contracts/Ballot.json")
-#     ) as jsonFile:
-#         jsonObject = json.load(jsonFile)
-#         jsonFile.close()
-#     abi = jsonObject["abi"]
-#     bytecode = jsonObject["bytecode"]
-#     web3 = Web3(Web3.HTTPProvider(infura_url))
-#     chain_id = 1337
-#     Ballot = web3.eth.contract(abi=abi, bytecode=bytecode)
-#     nonce = web3.eth.getTransactionCount(request.user.eth_address)
-#     # creating contract var, that we can interact with
-#     ballot = web3.eth.contract(address=contract_address, abi=abi)
-#     return ballot
-
-
-# def deploy_contract(request):
-#     with open(
-#         os.path.join(settings.BASE_DIR, "brownie/build/contracts/BallotFactory.json")
-#     ) as jsonFile:
-#         jsonObject = json.load(jsonFile)
-#         jsonFile.close()
-#     abi = jsonObject["abi"]
-#     bytecode = jsonObject["bytecode"]
-#     web3 = Web3(Web3.HTTPProvider(infura_url))
-#     chain_id = 1337
-#     Ballot = web3.eth.contract(abi=abi, bytecode=bytecode)
-#     nonce = web3.eth.getTransactionCount(request.user.eth_address)
-#     # creating contract var, that we can interact with
-#     ballot = web3.eth.contract(address=contract_address, abi=abi)
-#     return ballot
-
 
 def deploy_contract(request, proposal_id):
 
@@ -136,6 +81,9 @@ def add_proposal_to_blockchain(request, proposal_id):
     # TO-DO
     # creating Ballot in blockchain
     # adding proposal options to Ballot.proposals
+    from web3 import middleware
+    from web3.middleware import geth_poa_middleware
+    from web3.gas_strategies.time_based import fast_gas_price_strategy
 
     dep = deploy_contract(request, proposal_id)
 
@@ -160,19 +108,26 @@ def add_proposal_to_blockchain(request, proposal_id):
             "chainId": chain_id,
             "gasPrice": web3.eth.gas_price,
             "from": request.user.eth_address,
-            "nonce": nonce + 1,
+            "nonce": nonce,
         }
     )
     signed_txn = web3.eth.account.sign_transaction(
         test_transaction, private_key=request.user.private_key
     )
-
     tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
-    tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+
+    tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash, timeout=480)
+
     print(f"Lenght is: {BallotFactory.functions.bfGetBallotsLenght().call()}")
 
     creator = BallotFactory.functions.bfGetCreatorBallot(0).call()
     print(f"Creator is: {creator}")
+
+    num_of_proposals = BallotFactory.functions.bfGetNumOfProposals(0).call()
+    print(f"Num_of_proposals is: {num_of_proposals}")
+
+    proposals = BallotFactory.functions.bfGetProposals(0).call()
+    print(f"Proposals is: {proposals}")
 
 
 def test_interact_with_contract(request, proposal_id):
@@ -197,7 +152,7 @@ def test_interact_with_contract(request, proposal_id):
     ).buildTransaction(
         {
             "chainId": chain_id,
-            "gasPrice": web3.eth.gas_price,
+            "gasPrice": web3.toWei(1200, "gwei"),
             "from": request.user.eth_address,
             "nonce": nonce + 1,
         }
@@ -205,8 +160,10 @@ def test_interact_with_contract(request, proposal_id):
     signed_txn = web3.eth.account.sign_transaction(
         test_transaction, private_key=request.user.private_key
     )
+    print(signed_txn)
 
     tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    print(tx_hash)
 
     print("Updating stored Value...")
     tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
@@ -216,26 +173,51 @@ def test_interact_with_contract(request, proposal_id):
 
 
 @login_required
+def participation_in_proposal(request, proposal_id):
+    proposal = Proposal.objects.get(id=proposal_id)
+    creator = Proposal.objects.get(id=proposal_id).creator_id
+
+    options = proposal.options.split("*")
+
+    if request.method == "POST":
+        pass
+
+    else:
+        return render(
+            request,
+            "web3app/participation_in_proposal.html",
+            {"proposal": proposal, "options": options},
+        )
+
+    return render(
+        request,
+        "web3app/participation_in_proposal.html",
+        {"proposal": proposal, "options": options},
+    )
+
+
+@login_required
 def view_proposal(request, proposal_id):
 
     # print(deploy_contract(request, proposal_id))
     # test_interact_with_contract(request, proposal_id)
-    add_proposal_to_blockchain(request, proposal_id)
 
     proposal = Proposal.objects.get(id=proposal_id)
     if request.user.id == proposal.creator.id:
+        add_proposal_to_blockchain(request, proposal_id)
 
-        id = proposal.id
-        name = proposal.long_name
         options = proposal.options.split("*")
-        output = f"Proposal id {id}, name {name}"
         # return HttpResponse(output)
         return render(
             request,
             "web3app/view_proposal.html",
             {"proposal": proposal, "options": options},
         )
-
+    if request.user.id != proposal.creator.id:
+        return redirect(
+            "participation_in_proposal",
+            proposal_id=proposal_id,
+        )
     else:
         return HttpResponse("Your not eligble for this proposal")
 

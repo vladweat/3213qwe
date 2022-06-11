@@ -39,7 +39,7 @@ urlpatterns = [
     path("login/", users_views.login, name="login"),
     path("logout/", users_views.logout, name="logout"),
     # web3app views
-    
+    re_path(r'^participation_in_proposal/(?P<proposal_id>\d+)/', web3app_views.participation_in_proposal, name="participation_in_proposal"),
     re_path(r'^view_proposal/(?P<proposal_id>\d+)/', web3app_views.view_proposal, name="view_proposal"),
     path("creating_proposal/", web3app_views.creating_proposal, name="creating_proposal"),
     # path("view_proposal/", web3app_views.view_proposal, name="view_proposal"),

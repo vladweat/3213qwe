@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}View proposal{% endblock %}
+{% block title %}Participation in proposal{% endblock %}
 
 {% block content %}
 {% if user.is_authenticated %}
-  {% if user.id == proposal.creator.id %}
 
     <p>Условный дэшборд</p>
     <p>Hi {{ user.email }}!
@@ -18,13 +17,23 @@
     <p>Proposal creator email: {{ proposal.creator.email }}</p>
     <p>Proposal status: {{ proposal.status }}</p>
     <p>Proposal num of options: {{ proposal.num_of_options }}</p>
+
     {% for op in options %}
     <p>Option: {{ op }}</p>
     {% endfor %}
-  {% else %}
-  <p>You are not creator</p>
-  {% endif %}
 
+    <form action="{% url 'participation_in_proposal' proposal.id  %}" method='POST'>
+        {% csrf_token %}
+      
+        <p><select name="options_list">
+            {% for op in options %}
+                <option value={{ op }}>{{ op }}</option>
+            {% endfor %}
+            </select></p>
+            <p><input type="submit" value="Отправить"></p>
+      </form>
+
+    
 {% else %}
   <p>You are not logged in</p>
   <a href="{% url 'login' %}">Log In</a>
