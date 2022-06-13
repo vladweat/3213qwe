@@ -1,4 +1,29 @@
 {% extends 'base.html' %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/users/sidebar.css' %}">
+
+{% block sidebar %}
+
+<style>
+  aside {
+   background: #f0f0f0;
+   padding: 10px;
+   width: 200px;
+   float: right;
+  }
+ </style>
+
+<aside>
+  <ul class="sidebar-nav">
+    {% for prop in proposals %}
+    <li><a href="{% url 'view_proposal' prop  %}}">{{ prop }}</a></li>
+    {% endfor %}
+    {% comment %} <p>Data: {{ data }}</p> {% endcomment %}
+  </ul>
+</aside>
+
+{% endblock %}
 
 {% block title %}Creating proposal{% endblock %}
 

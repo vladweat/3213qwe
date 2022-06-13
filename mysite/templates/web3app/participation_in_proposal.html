@@ -2,6 +2,7 @@
 
 {% block title %}Participation in proposal{% endblock %}
 
+
 {% block content %}
 {% if user.is_authenticated %}
 
@@ -27,10 +28,11 @@
       
         <p><select name="options_list">
             {% for op in options %}
-                <option value={{ op }}>{{ op }}</option>
+                {{ forloop.counter }}
+                <option value={{ forloop.counter }}>{{ op }}</option>
             {% endfor %}
-            </select></p>
-            <p><input type="submit" value="Отправить"></p>
+        </select></p>
+            <p><input type="submit" name="submit" value="Отправить"></p>
       </form>
 
     
